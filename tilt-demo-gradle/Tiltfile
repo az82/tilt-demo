@@ -1,0 +1,31 @@
+k8s_yaml([
+    'k8s/artemis-deployment.yaml',
+    'k8s/artemis-service.yaml'
+    ])
+k8s_resource(
+    'artemis',
+    port_forwards=[port_forward(61616, 61616, "amqp")]
+    )
+
+local_resource(
+    'tilt-demo-gradle-compile',
+    './gradlew build',
+    deps=['src', 'build.gradle', 'settings.gradle', 'gradle.properties', 'gradle']
+    )
+docker_build(
+    'tilt-demo-gradle-image',
+    './build/quarkus-app',
+    dockerfile='./src/main/docker/Dockerfile.tilt'
+    )
+k8s_yaml([
+    'k8s/tilt-demo-gradle-deployment.yaml',
+    'k8s/tilt-demo-gradle-service.yaml']
+    )
+k8s_resource(
+    'tilt-demo-gradle',
+    port_forwards=[port_forward(8080, 8080, "http")],
+    resource_deps=['artemis']
+    )
+
+
+

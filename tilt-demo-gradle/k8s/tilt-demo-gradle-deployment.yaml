@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tilt-demo-gradle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tilt-demo-gradle
+  template:
+    metadata:
+      labels:
+        app: tilt-demo-gradle
+    spec:
+      containers:
+        - name: tilt-demo-gradle
+          image: tilt-demo-gradle-image
+          ports:
+            - containerPort: 8080
+              name: http
+          startupProbe:
+            httpGet:
+              port: 8080
+              path: /q/health/started
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /q/health/live
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 2
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /q/health
+            periodSeconds: 4
+            failureThreshold: 1
+            timeoutSeconds: 1

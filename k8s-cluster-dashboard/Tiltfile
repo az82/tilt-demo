@@ -1,0 +1,5 @@
+print("Service account token: ", local('kubectl apply -f service-account.yaml && kubectl create token full-access-sa', quiet=True))
+
+load('ext://helm_resource', 'helm_resource', 'helm_repo')
+helm_repo('kubernetes-dashboard', 'https://kubernetes.github.io/dashboard/')
+helm_resource('cluster-dashboard', 'kubernetes-dashboard/kubernetes-dashboard', resource_deps=['kubernetes-dashboard'], port_forwards=[port_forward(8081, 8000, "http")])

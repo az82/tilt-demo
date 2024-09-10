@@ -1,0 +1,9 @@
+custom_build(
+    'az/tilt-demo-jib',
+    'quarkus build -Dquarkus.container-image.build=true -Dquarkus.container-image.image=docker.io/$EXPECTED_REF',
+    deps=['src', 'pom.xml'])
+k8s_yaml(['target/kubernetes/kubernetes.yml'])
+k8s_resource('tilt-demo-jib', port_forwards=[port_forward(8080, 8080, "http")])
+
+
+

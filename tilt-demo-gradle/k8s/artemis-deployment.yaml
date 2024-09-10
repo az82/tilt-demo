@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artemis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: artemis
+  template:
+    metadata:
+      labels:
+        app: artemis
+    spec:
+      containers:
+        - name: artemis
+          image: quay.io/artemiscloud/activemq-artemis-broker-kubernetes:1.0.11
+          ports:
+            - containerPort: 61616
+              name: amqp
+          env:
+            - name: AMQ_REQUIRE_LOGIN
+              value: "false"
+            - name: AMQ_USER
+              value: test
+            - name: AMQ_PASSWORD
+              value: test
+              # Create a queue named "workQueue"
+            - name: AMQ_QUEUES
+              value: workQueue
+              # Use Java NIO instead of native IO to allow Artemis to run on M1 macs
+            - name: AMQ_EXTRA_ARGS
+              value: "--nio"
+          startupProbe:
+            tcpSocket:
+              port: 61616
+            failureThreshold: 18
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 61616
+            failureThreshold: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+          readinessProbe:
+            tcpSocket:
+              port: 61616
+            failureThreshold: 1
+            periodSeconds: 4
+            timeoutSeconds: 1

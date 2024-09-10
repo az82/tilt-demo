@@ -1,0 +1,9 @@
+custom_build(
+    'az/tilt-demo-db',
+    'quarkus build -Dquarkus.container-image.build=true -Dquarkus.container-image.image=docker.io/$EXPECTED_REF',
+    deps=['src', 'pom.xml'])
+k8s_yaml(kustomize('./k8s/overlays/local', flags=['--load-restrictor', 'LoadRestrictionsNone']))
+k8s_resource('tilt-demo-db', port_forwards=[port_forward(8080, 8080, "http")])
+
+
+
